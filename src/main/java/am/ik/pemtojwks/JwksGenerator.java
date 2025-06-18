@@ -1,0 +1,37 @@
+package am.ik.pemtojwks;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import java.io.OutputStream;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+public class JwksGenerator implements CommandLineRunner {
+
+	private final JwtProps jwtProps;
+
+	private final ObjectMapper objectMapper;
+
+	private final Logger logger = LoggerFactory.getLogger(JwksGenerator.class);
+
+	public JwksGenerator(JwtProps jwtProps, ObjectMapper objectMapper) {
+		this.jwtProps = jwtProps;
+		this.objectMapper = objectMapper;
+	}
+
+	@Override
+	public void run(String... args) throws Exception {
+		var key = new RSAKey.Builder(this.jwtProps.publicKey()).keyID(this.jwtProps.keyId()).build();
+		Map<String, Object> jwks = new JWKSet(key).toJSONObject();
+		logger.info("Writing JWKS to  {}", this.jwtProps.jwksOutput().getFile().getAbsoluteFile());
+		try (OutputStream outputStream = this.jwtProps.jwksOutput().getOutputStream()) {
+			outputStream.write(this.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsBytes(jwks));
+		}
+	}
+
+}
