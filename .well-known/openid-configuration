@@ -1,0 +1,13 @@
+{
+  "response_types_supported": [
+    "id_token"
+  ],
+  "issuer": "https://raw.githubusercontent.com/making/issuer/refs/heads/main",
+  "id_token_signing_alg_values_supported": [
+    "RS256"
+  ],
+  "subject_types_supported": [
+    "public"
+  ],
+  "jwks_uri": "https://raw.githubusercontent.com/making/issuer/refs/heads/main/jwks.json"
+}
