@@ -28,8 +28,8 @@ public class PemToJwksApplication {
 			var signer = new RSASSASigner(jwtProps.privateKey());
 			var verifier = new RSASSAVerifier(jwtProps.publicKey());
 			var claimsSet = new JWTClaimsSet.Builder().subject("test").build();
-
-			var header = new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwtProps.keyId())
+			var header = new JWSHeader.Builder(JWSAlgorithm.RS256)
+				.keyID(JwksGenerator.keyIDFromPublicKey(jwtProps.publicKey()))
 				.type(JOSEObjectType.JWT)
 				.build();
 			var signedJWT = new SignedJWT(header, claimsSet);

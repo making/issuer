@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import java.io.OutputStream;
+import java.security.MessageDigest;
+import java.security.PublicKey;
+import java.util.Base64;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +27,17 @@ public class JwksGenerator implements CommandLineRunner {
 		this.objectMapper = objectMapper;
 	}
 
+	static String keyIDFromPublicKey(PublicKey publicKey) throws Exception {
+		byte[] publicKeyDERBytes = publicKey.getEncoded();
+		MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+		byte[] publicKeyDERHash = hasher.digest(publicKeyDERBytes);
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(publicKeyDERHash);
+	}
+
 	@Override
 	public void run(String... args) throws Exception {
-		var key = new RSAKey.Builder(this.jwtProps.publicKey()).keyID(this.jwtProps.keyId()).build();
+		String keyId = keyIDFromPublicKey(this.jwtProps.publicKey());
+		var key = new RSAKey.Builder(this.jwtProps.publicKey()).keyID(keyId).build();
 		Map<String, Object> jwks = new JWKSet(key).toJSONObject();
 		logger.info("Writing JWKS to  {}", this.jwtProps.jwksOutput().getFile().getAbsoluteFile());
 		try (OutputStream outputStream = this.jwtProps.jwksOutput().getOutputStream()) {

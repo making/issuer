@@ -22,26 +22,18 @@ import org.springframework.util.StreamUtils;
 @ConfigurationProperties(prefix = "jwt")
 public final class JwtProps {
 
-	private final String keyId;
-
 	private final RSAPublicKey publicKey;
 
 	private final RSAPrivateKey privateKey;
 
 	private final WritableResource jwksOutput;
 
-	public JwtProps(String keyId, String publicKey, String privateKey, WritableResource jwksPath,
-			WritableResource jwksOutput) {
-		this.keyId = keyId;
+	public JwtProps(String publicKey, String privateKey, WritableResource jwksOutput) {
 		// to support `base64:` prefix
 		ResourceLoader resourceLoader = ApplicationResourceLoader.get();
 		this.publicKey = resourceToPublicKey(resourceLoader.getResource(publicKey));
 		this.privateKey = resourceToPrivateKey(resourceLoader.getResource(privateKey));
 		this.jwksOutput = jwksOutput;
-	}
-
-	public String keyId() {
-		return keyId;
 	}
 
 	public RSAPublicKey publicKey() {
